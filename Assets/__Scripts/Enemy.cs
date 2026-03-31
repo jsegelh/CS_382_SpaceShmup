@@ -20,7 +20,7 @@ public class Enemy : MonoBehaviour{
         }
     }
 
-    private BoundsCheck bndCheck;
+    protected BoundsCheck bndCheck;
 
     void Awake(){
         bndCheck = GetComponent<BoundsCheck>();
