@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy_2 : Enemy{
-    [Header("Eemy_2 Inscribed Fields")]
+    [Header("Enemy_2 Inscribed Fields")]
     public float lifeTime = 10;
     // Enemy_2 uses a Sine wave to modify a 2-point linear interpolaiton
     [Tooltip("Determines how much the Sine wave will ease the interpolaiton")]
