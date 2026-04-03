@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement; // Enables the loading & reloading of scenes
 public class Main : MonoBehaviour{
     static private Main S;
     static private Dictionary<eWeaponType, WeaponDefinition> WEAP_DICT;
+    static private AudioSource deathSound;
 
     [Header("Inscribed")]
     public bool spawnEnemies = true;
@@ -20,6 +21,9 @@ public class Main : MonoBehaviour{
         S = this;
         // Set bndCkeck to reference teh BoundsCheck component on this GameObject
         bndCheck = GetComponent<BoundsCheck>();
+
+        // Get the audioSource for the death sound
+        deathSound = GetComponent<AudioSource>();
 
         // Invoke SpawnEnemy() once (in 2 seconds, based on default values)
         Invoke( nameof(SpawnEnemy), 1f/enemySpawnPerSecond);
@@ -71,6 +75,7 @@ public class Main : MonoBehaviour{
     }
 
     static public void HERO_DIED(){
+        if (deathSound != null) deathSound.Play(); // Play death sound
         S.DelayedRestart();
     }
 

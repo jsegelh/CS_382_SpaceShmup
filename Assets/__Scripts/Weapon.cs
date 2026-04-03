@@ -42,15 +42,24 @@ public class WeaponDefinition{
 public class Weapon : MonoBehaviour{
     static public Transform PROJECTILE_ANCHOR;
 
+    [Header("Inscribed")]
+    public AudioClip[] fireSounds;
+    public AudioClip startupFireSound;
+
+    [Tooltip("The amount of time past the firing delay that causes the startup firing sound to play")]
+    public float delayToPlayStartupFireSound = 0.5f;
+
     [Header("Dynamic")]
     [SerializeField]
     [Tooltip("Setting this manually while playing does not work properly.")]
     private eWeaponType _type = eWeaponType.none;
     public WeaponDefinition def;
     public float nextShotTime; // Time the Weapon will fire next
+    // public float fireSoundDuration; // The duration of the longest fireing sound
 
     private GameObject weaponModel;
     private Transform shotPointTrans;
+    private AudioSource audioSource; // This gameObject's audio source
 
     void Start(){
         // Set up PROJECTILE_ACHOR if it has not already been done
@@ -67,6 +76,14 @@ public class Weapon : MonoBehaviour{
         // Find the fireEvent of a Hero Component in the parent hierarchy
         Hero hero =  GetComponentInParent<Hero>();
         if (hero != null) hero.fireEvent += Fire;
+
+        // Find the AudioSource on this gameObject
+        audioSource = GetComponent<AudioSource>();
+
+        // // Find the longest firing sound length in fireSounds
+        // foreach(AudioClip sound in fireSounds){
+        //     fireSoundDuration = Mathf.Max(sound.length, fireSoundDuration);
+        // }
     }
 
     public eWeaponType type{
@@ -104,6 +121,9 @@ public class Weapon : MonoBehaviour{
         ProjectileHero p;
         Vector3 vel = Vector3.up * def.velocity;
 
+        // Play the firing sound
+        PlayFireSound();
+
         switch (type) {
             case eWeaponType.blaster:
                 p = MakeProjectile();
@@ -135,5 +155,39 @@ public class Weapon : MonoBehaviour{
         p.type = type;
         nextShotTime = Time.time + def.delayBetweenShots;
         return (p);
+    }
+
+    private void PlayFireSound(){
+        // If there is no audio source on this gameObject, do nothing
+        if(audioSource == null) return;
+
+        // If there is no fireing sounds in the list, do nothing
+        if(fireSounds.Length == 0) return;
+
+        // If the startup firing sound is playing, do nothing
+        if(audioSource.isPlaying && audioSource.clip == startupFireSound) return;
+
+        // If the current time has passed the nextShotTime by a certain amount
+        // then play the fire start up sound.
+        if( (Time.time - nextShotTime) >=  delayToPlayStartupFireSound){
+            audioSource.clip = startupFireSound;
+        }
+        // else play a random continuous fire sound if 
+        else{
+            audioSource.clip = fireSounds[Random.Range(0, fireSounds.Length)];
+        }
+        
+
+        // If the longest firing sound can't finish before the next shot is
+        // fired, speed up the sound so it can fit.
+        // if(fireSoundDuration > def.delayBetweenShots){
+        //     audioSource.pitch = audioSource.clip.length / def.delayBetweenShots;
+        // } 
+        // else{
+        //     audioSource.pitch = 1f;
+        // }
+
+        // Play the selected sound at the selected speed (a.k.a. pitch)
+        audioSource.Play();
     }
 }
